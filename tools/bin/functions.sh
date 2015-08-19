@@ -17,6 +17,16 @@ function print_split_line_less {
     echo "`date +"%Y-%m-%d %H:%M:%S"` *** $1 ***";
 }
 
+
+function get_env_file () {
+    env_file=$1
+    env_file_path=$GLOBAL_TOOlS_BIN_DIR/../../env/$env_file.sh
+    test -f "$env_file_path"
+    exit_if_error $? "$env_file_path not exists"
+
+    echo $env_file_path;
+}
+
 function download-file-from-repo() {
     _groupId=$1
     _artifactId=$2
@@ -50,7 +60,8 @@ function scp_file_to_apps() {
         ssh $_dst_user@$_server "test -d $_dst_dir || mkdir -p $_dst_dir"
 
         _cmd="scp $_src_file $_dst_user@$_server:$_dst_dir "
-        print_split_line_less $_cmd
+        print_split_line_less "$_cmd"
+
         $_cmd
 
         exit_if_error $? "$_cmd error"
@@ -66,16 +77,13 @@ function launcher_release_war() {
     _jetty_options=$1
 
     shift
-    _nohup=$1
-
-    if [ -n "$_nohup" ];then
-        _nohup="nohup"
-        _background="&"
-    fi
+    _process_identify=$1
 
 
-    _cmd="$_nohup $JAVA_HOME/bin/java -jar $GLOBAL_TOOlS_DIR/lib/jetty-runner-9.3.2.v20150730.jar $_jetty_options > /dev/null 2>&1 $_background"
+    _cmd="$JAVA_HOME/bin/java -Dprocess_identify=$process_identify $JAVA_OPTS -jar $GLOBAL_TOOlS_BIN_DIR/../lib/jetty-runner-9.3.2.v20150730.jar $_jetty_options $_warfile"
 
+    print_split_line_less "launch $_cmd"
+    nohup $_cmd > /dev/null 2>&1 &
 }
 
 function build_git_project() {

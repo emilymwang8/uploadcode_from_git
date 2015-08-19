@@ -1,35 +1,36 @@
 #!/bin/bash
 
-work_dir=$(cd `dirname $0` > /dev/null;pwd)
-GLOBAL_TOOlS_DIR=$work_dir/../tools/
-. $GLOBAL_TOOlS_DIR/bin/functions.sh
+GLOBAL_TOOlS_BIN_DIR=$(cd `dirname $0` > /dev/null;pwd)
+. $GLOBAL_TOOlS_BIN_DIR/functions.sh
+
+if [ $# -eq 0 ];then
+    print_split_line_less "eg use $0  demo-webmvc release_new";
+    print_split_line_less "eg use $0  demo-webmvc release_old version";
+    exit 1
+fi
 
 env_file=$1
-env_file_path=$GLOBAL_TOOlS_DIR/../env/$env_file.sh
+action=$2
+old_version=$3
 
-test -f "$env_file_path"
-exit_if_error $? "$env_file_path not exists"
+env_file_path=`get_env_file $env_file`
+. $env_file_path
 
-# groupId="com.anjuke.service.message"
-# artifactId="message-bus"
-
-# # release 版本是由 maven release plugin 自动生成的
-# version=""
-# packaging="war"
-
-
-# servers="dev2.aifang.com"
-# dst_dir="/data1/release/java/message-bus/"
-# dst_user="www"
-
-
-# repo_dir=/Users/wbsong/projects/anjuke/java/message-bus/
-# release_mode=1
 
 ##build
-rs=`build_git_project $repo_dir $release_mode`
-if [ "$release_mode" = "1" ];then
-    version=`echo $rs | sed "#tag-##"`
+
+if [ "$action" = "release_new" ];then
+    rs=`build_git_project $repo_dir $release_mode`
+    if [ "$release_mode" = "1" ];then
+        version=`echo $rs | sed "s#tag-##"`
+    fi
+elif [ "$action" = "release_old" ];then
+    version=$old_version
+    test -n "$version"
+    exit_if_error $? "old version is empty"
+else
+    print_split_line_less "error action"
+    exit 1
 fi
 
 ## download
@@ -37,7 +38,6 @@ warfile=`download-file-from-repo $groupId $artifactId $version $packaging`
 print_split_line_less "$warfile download success"
 
 ## release_1
-
 scp_file_to_apps "$servers" "$warfile" "$dst_dir" "$dst_user"
 
 ## release_2
