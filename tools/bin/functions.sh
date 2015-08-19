@@ -97,7 +97,7 @@ function build_git_project() {
 
     # 后面的标准流程都是 deploy 或者 release，包括 war项目 && tar.bz2 项目
 
-    if [ -n "$_release_mode" -a "$_release_mode" = "1" ];then
+    if [ "$_release_mode" = "1" ];then
         mvn -B release:prepare 1>&2
         exit_if_error $? "prepare error"
         mvn -B release:perform 1>&2
