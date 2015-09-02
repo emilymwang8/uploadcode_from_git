@@ -7,6 +7,7 @@ function helper(){
     print_split_line_less "eg use $0  demo-webmvc release_new_and_restart";
     print_split_line_less "eg use $0  demo-webmvc release_new_only";
     print_split_line_less "eg use $0  demo-webmvc release_old_and_restart release_version";
+    print_split_line_less "eg use $0  demo-webmvc restart_old_only release_version";
     exit 1
 }
 
@@ -65,6 +66,8 @@ function do_download_and_copy(){
 
 
 function do_restart(){
+    test -n "$release_version"
+    print_split_line_less "version is empty"
     release_war_to_apps "$servers" "$env_file" "$release_version" "$dst_user"
 }
 
@@ -81,6 +84,9 @@ case $action in
         ;;
     release_old_and_restart)
         do_download_and_copy
+        do_restart;
+        ;;
+    restart_old_only)
         do_restart;
         ;;
     *)

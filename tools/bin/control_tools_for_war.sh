@@ -55,6 +55,3 @@ case $action in
     stop) stop;;
     *) echo "error action" ;;
 esac
-
-
-
