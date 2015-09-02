@@ -1,4 +1,5 @@
 #!/bin/bash
+
 GLOBAL_TOOlS_BIN_DIR=$(cd `dirname $0` > /dev/null;pwd)
 . $GLOBAL_TOOlS_BIN_DIR/functions.sh
 
@@ -9,12 +10,14 @@ fi
 
 env_file=$1
 action=$2
-
+release_version=$3
 
 env_file_path=`get_env_file $env_file`
 . $env_file_path
 
-version=$3
+test -d "$log_dir" || mkdir -p "$log_dir"
+exit_if_error $? "create log_dir $log_dir error"
+
 
 function restart() {
     stop
@@ -23,7 +26,11 @@ function restart() {
 }
 
 function start() {
-    warfile="$dst_dir/$artifactId-$version.war"
+    if [ "$release_mode" -eq "0" ];then
+        warfile="$dst_dir/$release_version/$artifactId-$snapshot_pom_version.war"
+    else
+        warfile="$dst_dir/$artifactId-$release_version.war"
+    fi
     test -f $warfile
     exit_if_error $? "$warfile not exists"
 
