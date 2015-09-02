@@ -26,34 +26,17 @@ version_save_file="/tmp/$env_file.log"
 
 
 function do_build(){
-    # if [ "$action" = "release_new" ];then
-        rs=`build_git_project $repo_dir $release_mode`
-        if [ "$release_mode" = "1" ];then
-            ## release 模式，返回的版本号是 1.0.1 类似的
-            release_version=`echo $rs | sed "s#tag-##"`
-            pom_version=$release_version
-        else
-            ## snapshot 的版本是时间戳，并且有git tag
-            release_version=$rs
-            pom_version=$snapshot_pom_version
-        fi
-        echo $release_version > $version_save_file
-
-    # elif [ "$action" = "release_old" ];then
-    #     if [ "$release_mode" = "1" ];then
-    #         if [ -z "$release_version" ];then
-    #             release_version=`read_version_from_file $version_save_file`
-    #         fi
-    #         pom_version=$release_version
-    #     else
-    #         pom_version=$snapshot_pom_version
-    #     fi
-
-    #     exit_if_error $? "old version is empty"
-    # else
-    #     print_split_line_less "error action"
-    #     exit 1
-    # fi
+    rs=`build_git_project $repo_dir $release_mode`
+    if [ "$release_mode" = "1" ];then
+        ## release 模式，返回的版本号是 1.0.1 类似的
+        release_version=`echo $rs | sed "s#tag-##"`
+        pom_version=$release_version
+    else
+        ## snapshot 的版本是时间戳，并且有git tag
+        release_version=$rs
+        pom_version=$snapshot_pom_version
+    fi
+    echo $release_version > $version_save_file
 }
 
 
